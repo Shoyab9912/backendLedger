@@ -1,8 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
-import { ConflictError, ValidationError,NotFoundError, UnauthorizedError } from "../utils/errors.js";
+import { ConflictError, ValidationError, NotFoundError, UnauthorizedError } from "../utils/errors.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import sendRegistrationEmail from "../utils/nodeMailer.js";
 import jwt from "jsonwebtoken";
+
 
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -36,6 +38,8 @@ const registerUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: true,
   });
+
+    await sendRegistrationEmail(user.email,user.name)
   return res
     .status(201)
     .json(new ApiResponse(201, "successfully user registered", user));
@@ -43,30 +47,30 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  
-  if(!email || !password) {
-     throw  new ValidationError("All Fields are required")
+
+  if (!email || !password) {
+    throw new ValidationError("All Fields are required")
   }
 
 
 
-  const user = await User.findOne({email:email}).select('+password').orFail()
-  console.log(user)
+  const user = await User.findOne({ email}).select('+password').orFail()
+  // console.log(user)
 
-  if(!user) {
+  if (!user) {
     throw new NotFoundError("User Not exists")
   }
 
   const isValidPassword = await user.verifyPassword(password)
 
-  if(!isValidPassword) {
+  if (!isValidPassword) {
     throw new UnauthorizedError("Invalid Credientials")
   }
 
-    const token = jwt.sign(
+  const token = jwt.sign(
     {
       userId: user._id,
-      email:user.email
+      email: user.email
     },
     process.env.JWT_SECRET,
     {
@@ -78,12 +82,17 @@ const loginUser = asyncHandler(async (req, res) => {
     secure: true,
   });
 
- return res.status(200).json(new ApiResponse(200,"User login SuccessFull"),token)
+  return res.status(200).json(new ApiResponse(200, "User login SuccessFull"), token)
 
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+  })
 
+  return res.status(200).json(new ApiResponse(200,"logout SuccessFull"))
 });
 
 export { registerUser, loginUser, logoutUser };
