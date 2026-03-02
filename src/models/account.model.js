@@ -2,7 +2,7 @@ import mongoose,{Schema} from "mongoose"
 
 
 const accountSchema = new Schema({
-  userId: {
+  user: {
     type:Schema.Types.ObjectId,
     ref:"User",
     required:[true,"userId required"],
@@ -15,7 +15,10 @@ const accountSchema = new Schema({
   },
   status: {
     type:"String",
-    enum:["Active","Frozen","Closed"],
+    enum:{
+     values:["Active","Closed","Frozen"],
+     message:"account status can be either active or frozen or closed"
+    },
     default:"Active"
   },
 },{
