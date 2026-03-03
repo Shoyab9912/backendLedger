@@ -11,7 +11,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: [true,"email must be unique"],
+      unique: [true, "email must be unique"],
       trim: true,
       lowercase: true,
       match: [
@@ -37,7 +37,7 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.methods.verifyPassword = async function (password) {
- return await bcrypt.compare(password,this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 export const User = mongoose.model("User", userSchema);

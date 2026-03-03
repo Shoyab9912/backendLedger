@@ -2,35 +2,33 @@ import { ApiError } from "./apiError.js";
 
 class NotFoundError extends ApiError {
   constructor(message = "resource not found") {
-    super(404,message);
+    super(404, message);
   }
 }
 
 class BadRequestError extends ApiError {
   constructor(message = "Bad request") {
-    super(400,message);
+    super(400, message);
   }
 }
 
 class ValidationError extends ApiError {
   constructor(message = "Validation failed") {
-    super(422,message);
+    super(422, message);
   }
 }
 
 class UnauthorizedError extends ApiError {
   constructor(message = "Unauthorized") {
-    super(401,message);
+    super(401, message);
   }
 }
 
 class ConflictError extends ApiError {
   constructor(message = "Conflict") {
-    super(409,message);
+    super(409, message);
   }
 }
-
-
 
 class ForbiddenError extends ApiError {
   constructor(message = "Access forbidden") {
@@ -38,12 +36,11 @@ class ForbiddenError extends ApiError {
   }
 }
 
-
 export {
   NotFoundError,
   ConflictError,
   ValidationError,
   UnauthorizedError,
   BadRequestError,
-  ForbiddenError
+  ForbiddenError,
 };
