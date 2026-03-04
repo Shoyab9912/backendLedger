@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.use(verifyJWT);
 
-router.route("/", createUserAccount);
+router.post("/", createUserAccount);
 
 export default router;

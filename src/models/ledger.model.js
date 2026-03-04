@@ -12,7 +12,7 @@ const ledgerSchema = new Schema(
     type: {
       type: "String",
       enum: {
-        values: ["Credit", "Debit"],
+        values: ["CREDIT", "DEBIT"],
         message: "Type can be credit or debit",
       },
       immutable: true,
@@ -21,7 +21,7 @@ const ledgerSchema = new Schema(
       type: "Number",
       required: [true, "amount is required for ledger"],
       min: 0,
-      immurable: true,
+      immutable: true,
     },
     transactionId: {
       type: Schema.Types.ObjectId,

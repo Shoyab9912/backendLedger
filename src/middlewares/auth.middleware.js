@@ -11,15 +11,21 @@ export const verifyJWT = async (req, res, next) => {
     const token =
       req.cookies.token || req.header("Authorization").split(" ")[1];
 
+      console.log(req.headers);
+     console.log(token);
+
+
     if (!token) {
       throw new UnauthorizedError("login to access the token");
     }
 
-    const verifiedToken = jwt.verify(token, Process.env.JWT_SECRET);
+    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!verifiedToken.userId) {
+    if (!verifiedToken) {
       throw new NotFoundError("userId not found");
     }
+
+    console.log(verifiedToken);
 
     const user = await User.findById(verifiedToken.userId);
 
@@ -43,9 +49,9 @@ export const verifySystemUser = async (req, res, next) => {
       throw new UnauthorizedError("login to access the token");
     }
 
-    const verifiedToken = jwt.verify(token, Process.env.JWT_SECRET);
+    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!verifiedToken.userId) {
+    if (!verifiedToken) {
       throw new NotFoundError("userId not found");
     }
 

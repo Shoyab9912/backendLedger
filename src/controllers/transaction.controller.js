@@ -1,5 +1,5 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User } from "../models/user.model.js";
+import { Ledger } from "../models/ledger.model.js";
 import {
   NotFoundError,
   UnauthorizedError,
@@ -118,6 +118,8 @@ const createTransaction = asyncHandler(async (req, res) => {
       fromUser._id,
     );
     throw new ApiError(500, "Transaction failed: " + error.message);
+  } finally {
+    session.endSession();
   }
 });
 
@@ -136,9 +138,14 @@ const createInitalFunds = asyncHandler(async (req, res) => {
     throw new NotFoundError("To account not exists");
   }
 
+  console.log(req.user)
+
+
   const fromUser = await Account.findOne({
     userId: req.user._id,
   });
+
+  console.log(fromUser)
 
   if (!fromUser) {
     throw new NotFoundError("From account not exists");
@@ -150,7 +157,7 @@ const createInitalFunds = asyncHandler(async (req, res) => {
   try {
     const transaction = new Transaction({
       fromAccount: fromUser._id,
-      toAccount: toUser._id,
+      toAccount,
       status: "PENDING",
       amount,
       idempotencyKey,
@@ -191,9 +198,10 @@ const createInitalFunds = asyncHandler(async (req, res) => {
         new ApiResponse(201, "Initial funds added successfully", transaction),
       );
   } catch (error) {
-    session.endSession();
     await session.abortTransaction();
     throw new ApiError(500, "Transaction failed: " + error.message);
+  } finally {
+    session.endSession();
   }
 });
 

@@ -7,7 +7,7 @@ import {
   UnauthorizedError,
 } from "../utils/errors.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-import sendRegistrationEmail from "../utils/nodeMailer.js";
+import {sendRegistrationEmail} from "../utils/nodeMailer.js";
 import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(async (req, res) => {
