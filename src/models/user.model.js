@@ -25,6 +25,11 @@ const userSchema = new Schema(
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
     },
+    systemUser: {
+      type: "Boolean",
+      default: false,
+      immutable: true,
+    },
   },
   {
     timestamps: true,
