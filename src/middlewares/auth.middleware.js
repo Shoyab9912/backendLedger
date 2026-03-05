@@ -11,9 +11,8 @@ export const verifyJWT = async (req, res, next) => {
     const token =
       req.cookies.token || req.header("Authorization").split(" ")[1];
 
-      console.log(req.headers);
-     console.log(token);
-
+    console.log(req.headers);
+    console.log(token);
 
     if (!token) {
       throw new UnauthorizedError("login to access the token");

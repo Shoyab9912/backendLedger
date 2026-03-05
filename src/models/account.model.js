@@ -58,6 +58,8 @@ accountSchema.methods.calculateBalance = async function () {
       },
     ]);
 
+    console.log(balance);
+
     return balance.length > 0 ? balance[0].balance : 0;
   } catch (error) {
     throw new Error("Error calculating balance: " + error.message);

@@ -137,13 +137,11 @@ const createInitalFunds = asyncHandler(async (req, res) => {
     throw new NotFoundError("To account not exists");
   }
 
-  console.log(req.user)
-
+  console.log(req.user);
 
   const fromUser = await Account.findOne({
     userId: req.user._id,
   });
-
 
   if (!fromUser) {
     throw new NotFoundError("From account not exists");
