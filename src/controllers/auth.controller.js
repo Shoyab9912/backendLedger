@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
+import { Backlist } from "../models/backlist.model.js";
 import {
   ConflictError,
   ValidationError,
@@ -90,6 +91,14 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    throw new UnauthorizedError("No token provided");
+  }
+  
+  await Backlist.create({ token });
+  
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,
