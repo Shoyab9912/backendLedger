@@ -1,10 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Ledger } from "../models/ledger.model.js";
-import {
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-} from "../utils/errors.js";
+import { NotFoundError, BadRequestError } from "../utils/errors.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import {
   sendTransactionEmail,
@@ -15,9 +11,10 @@ import { Transaction } from "../models/transaction.model.js";
 import { ApiError } from "../utils/apiError.js";
 
 const createTransaction = asyncHandler(async (req, res) => {
-  const { fromAccount, toAccount, amount, idempotencykey } = req.body;
+  const { fromAccount, toAccount, amount, idempotencyKey } = req.body;
+  console.log(req.body);
 
-  if (!fromAccount || !toAccount || !amount || !idempotencykey) {
+  if (!fromAccount || !toAccount || !amount || !idempotencyKey) {
     throw new BadRequestError("All fields are required");
   }
 
@@ -29,12 +26,14 @@ const createTransaction = asyncHandler(async (req, res) => {
     userId: toAccount,
   });
 
+  console.log(toUser);
+
   if (!fromUser || !toUser) {
     throw new NotFoundError("account not exists");
   }
 
   const isExistIdempotencyKey = await Transaction({
-    idempotencykey,
+    idempotencyKey,
   });
 
   if (isExistIdempotencyKey) {
@@ -53,7 +52,7 @@ const createTransaction = asyncHandler(async (req, res) => {
     }
   }
 
-  if (fromUser.status !== "ACTIVE" || toUser.status !== "ACTIVE") {
+  if (fromUser.status !== "Active" || toUser.status !== "Active") {
     throw new BadRequestError("Both accounts must be active for transaction");
   }
 
@@ -72,7 +71,7 @@ const createTransaction = asyncHandler(async (req, res) => {
       toAccount: toUser._id,
       status: "PENDING",
       amount,
-      idempotencyKey: idempotencykey,
+      idempotencyKey,
     });
 
     const creditLedgerEntry = await Ledger.create(
@@ -104,15 +103,26 @@ const createTransaction = asyncHandler(async (req, res) => {
     await transaction.save({ session });
 
     await session.commitTransaction();
-    await sendTransactionEmail(fromUser.email, amount, toUser._id);
+
+    try {
+      await sendTransactionEmail(fromUser.email, amount, toUser._id);
+    } catch (error) {
+      console.error("Email sending error:", error);
+      throw new ApiError(
+        500,
+        "Transaction completed but failed to send email: " + error.message,
+      );
+    }
+
     return res
       .status(201)
       .json(new ApiResponse(201, "Transaction successful", transaction));
   } catch (error) {
+    console.error("Transaction error:", error);
     await session.abortTransaction();
     await sendTransactionFailedEmail(
-      fromUser.userId,
-      email,
+      fromUser.email,
+      req.user.name,
       amount,
       fromUser._id,
     );
@@ -136,8 +146,6 @@ const createInitalFunds = asyncHandler(async (req, res) => {
   if (!toUser) {
     throw new NotFoundError("To account not exists");
   }
-
-  console.log(req.user);
 
   const fromUser = await Account.findOne({
     userId: req.user._id,
@@ -187,6 +195,7 @@ const createInitalFunds = asyncHandler(async (req, res) => {
     await transaction.save({ session });
 
     await session.commitTransaction();
+
     await sendTransactionEmail(fromUser.email, amount, toUser._id);
     return res
       .status(201)
@@ -195,6 +204,7 @@ const createInitalFunds = asyncHandler(async (req, res) => {
       );
   } catch (error) {
     await session.abortTransaction();
+
     throw new ApiError(500, "Transaction failed: " + error.message);
   } finally {
     session.endSession();

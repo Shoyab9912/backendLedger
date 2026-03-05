@@ -25,7 +25,7 @@ const transactionSchema = new Schema(
         values: ["PENDING", "COMPLETE", "FAILED", "REVERSED"],
         message: "status must be pending,complete ,failed or reversed",
       },
-      default: "PENDING",
+      required: [true, "status is required for transaction"],
     },
     idempotencyKey: {
       type: "String",

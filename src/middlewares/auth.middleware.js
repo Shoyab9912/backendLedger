@@ -11,9 +11,6 @@ export const verifyJWT = async (req, res, next) => {
     const token =
       req.cookies.token || req.header("Authorization").split(" ")[1];
 
-    console.log(req.headers);
-    console.log(token);
-
     if (!token) {
       throw new UnauthorizedError("login to access the token");
     }
@@ -23,8 +20,6 @@ export const verifyJWT = async (req, res, next) => {
     if (!verifiedToken) {
       throw new NotFoundError("userId not found");
     }
-
-    console.log(verifiedToken);
 
     const user = await User.findById(verifiedToken.userId);
 
@@ -43,7 +38,7 @@ export const verifySystemUser = async (req, res, next) => {
   try {
     const token =
       req.cookies.token || req.header("Authorization").split(" ")[1];
-    console.log(req.headers);
+
     if (!token) {
       throw new UnauthorizedError("login to access the token");
     }
