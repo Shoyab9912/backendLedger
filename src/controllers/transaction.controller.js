@@ -109,7 +109,6 @@ const createTransaction = asyncHandler(async (req, res) => {
       .status(201)
       .json(new ApiResponse(201, "Transaction successful", transaction));
   } catch (error) {
-    session.endSession();
     await session.abortTransaction();
     await sendTransactionFailedEmail(
       fromUser.userId,
@@ -145,7 +144,6 @@ const createInitalFunds = asyncHandler(async (req, res) => {
     userId: req.user._id,
   });
 
-  console.log(fromUser)
 
   if (!fromUser) {
     throw new NotFoundError("From account not exists");
