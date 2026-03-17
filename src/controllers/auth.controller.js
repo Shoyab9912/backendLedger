@@ -96,9 +96,9 @@ const logoutUser = asyncHandler(async (req, res) => {
   if (!token) {
     throw new UnauthorizedError("No token provided");
   }
-  
+
   await Backlist.create({ token });
-  
+
   res.clearCookie("token", {
     httpOnly: true,
     secure: true,

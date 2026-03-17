@@ -26,13 +26,11 @@ const createTransaction = asyncHandler(async (req, res) => {
     userId: toAccount,
   });
 
-  console.log(toUser);
-
   if (!fromUser || !toUser) {
     throw new NotFoundError("account not exists");
   }
 
-  const isExistIdempotencyKey = await Transaction({
+  const isExistIdempotencyKey = await Transaction.findOne({
     idempotencyKey,
   });
 
@@ -108,10 +106,6 @@ const createTransaction = asyncHandler(async (req, res) => {
       await sendTransactionEmail(fromUser.email, amount, toUser._id);
     } catch (error) {
       console.error("Email sending error:", error);
-      throw new ApiError(
-        500,
-        "Transaction completed but failed to send email: " + error.message,
-      );
     }
 
     return res
@@ -210,5 +204,7 @@ const createInitalFunds = asyncHandler(async (req, res) => {
     session.endSession();
   }
 });
+
+
 
 export { createTransaction, createInitalFunds };

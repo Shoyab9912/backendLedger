@@ -1,4 +1,5 @@
 import { User } from "../models/user.model.js";
+import { Backlist } from "../models/backlist.model.js";
 import {
   ForbiddenError,
   NotFoundError,
@@ -13,6 +14,12 @@ export const verifyJWT = async (req, res, next) => {
 
     if (!token) {
       throw new UnauthorizedError("login to access the token");
+    }
+
+    const isBlacklisted = await Backlist.findOne({ token }).lean();
+
+    if (isBlacklisted) {
+      throw new UnauthorizedError("Token is blacklisted, please login again");
     }
 
     const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -41,6 +48,12 @@ export const verifySystemUser = async (req, res, next) => {
 
     if (!token) {
       throw new UnauthorizedError("login to access the token");
+    }
+
+    const isBlacklisted = await Backlist.findOne({ token }).lean();
+
+    if (isBlacklisted) {
+      throw new UnauthorizedError("Token is blacklisted, please login again");
     }
 
     const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
